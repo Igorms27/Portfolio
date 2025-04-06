@@ -357,91 +357,112 @@
 })(jQuery, window, document);
 
 $(document).ready(function() {
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-  const screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-  const isLowPowerDevice = isMobile && navigator.deviceMemory && navigator.deviceMemory < 4;
-  
-  let starOptions = {};
-  
-  // Configurações baseadas no tipo de dispositivo e tamanho da tela
-  if (isLowPowerDevice) {
-    // Dispositivos de baixa capacidade
-    starOptions = {
-      quantity: 100,
-      speed: 0.3,
-      fps: 20
-    };
-  } else if (isMobile || screenWidth < 480) {
-    // Smartphones
-    starOptions = {
-      quantity: 150,
-      speed: 0.5,
-      fps: 30
-    };
-  } else if (screenWidth < 768) {
-    // Tablets menores
-    starOptions = {
-      quantity: 250,
-      speed: 0.6,
-      fps: 30
-    };
-  } else if (screenWidth < 1200) {
-    // Tablets maiores e laptops
-    starOptions = {
-      quantity: 300,
-      speed: 0.8
-    };
-  } else if (screenWidth >= 1920) {
-    // Telas grandes
-    starOptions = {
-      quantity: 600,
-      speed: 1.2
-    };
-  }
-  
-  // Orientação paisagem em dispositivo móvel (ajuste para melhor desempenho)
-  if (isMobile && screenWidth > screenHeight) {
-    starOptions.quantity = Math.floor(starOptions.quantity * 0.7);
-  }
-  
-  // Inicializar o campo de estrelas
-  $(".starfield").starfield(starOptions);
-  
-  // Atualizar quando a orientação mudar
-  window.addEventListener('orientationchange', function() {
-    setTimeout(function() {
-      const newWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-      const newHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-      
-      if (isMobile) {
-        // Reajustar quantidade em orientação paisagem
-        if (newWidth > newHeight) {
-          $(".starfield").starfield({
-            ...starOptions,
-            quantity: Math.floor(starOptions.quantity * 0.7)
-          });
-        } else {
-          $(".starfield").starfield(starOptions);
+  // Verificar se o elemento starfield existe antes de inicializar
+  if ($(".starfield").length) {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    const screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+    const isLowPowerDevice = isMobile && navigator.deviceMemory && navigator.deviceMemory < 4;
+    
+    let starOptions = {};
+    
+    // Configurações baseadas no tipo de dispositivo e tamanho da tela
+    if (isLowPowerDevice) {
+      // Dispositivos de baixa capacidade
+      starOptions = {
+        quantity: 100,
+        speed: 0.3,
+        fps: 20
+      };
+    } else if (isMobile || screenWidth < 480) {
+      // Smartphones
+      starOptions = {
+        quantity: 150,
+        speed: 0.5,
+        fps: 30
+      };
+    } else if (screenWidth < 768) {
+      // Tablets menores
+      starOptions = {
+        quantity: 250,
+        speed: 0.6,
+        fps: 30
+      };
+    } else if (screenWidth < 1200) {
+      // Tablets maiores e laptops
+      starOptions = {
+        quantity: 300,
+        speed: 0.8
+      };
+    } else if (screenWidth >= 1920) {
+      // Telas grandes
+      starOptions = {
+        quantity: 600,
+        speed: 1.2
+      };
+    }
+    
+    // Orientação paisagem em dispositivo móvel (ajuste para melhor desempenho)
+    if (isMobile && screenWidth > screenHeight) {
+      starOptions.quantity = Math.floor(starOptions.quantity * 0.7);
+    }
+    
+    // Inicializar o campo de estrelas
+    $(".starfield").starfield(starOptions);
+    
+    // Atualizar quando a orientação mudar
+    window.addEventListener('orientationchange', function() {
+      setTimeout(function() {
+        const newWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        const newHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        
+        if (isMobile) {
+          // Reajustar quantidade em orientação paisagem
+          if (newWidth > newHeight) {
+            $(".starfield").starfield({
+              ...starOptions,
+              quantity: Math.floor(starOptions.quantity * 0.7)
+            });
+          } else {
+            $(".starfield").starfield(starOptions);
+          }
         }
-      }
-    }, 300);
-  });
-  
-  // Adicionar suporte a navegação suave para links internos
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-      
-      const targetId = this.getAttribute('href');
-      if (targetId === '#') return;
-      
-      const targetElement = document.querySelector(targetId);
-      if (targetElement) {
-        targetElement.scrollIntoView({
-          behavior: 'smooth'
-        });
-      }
+      }, 300);
     });
+  }
+  
+  // Função para corrigir a navegação em links internos
+  function setupSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  }
+  
+  // Configurar navegação suave
+  setupSmoothScroll();
+  
+  // Garantir que a rolagem funcione mesmo depois de carregar a página
+  setTimeout(setupSmoothScroll, 1000);
+  
+  // Corrigir a seta de rolagem
+  document.querySelector('.scroll-indicator')?.addEventListener('click', function() {
+    const experienciaElement = document.querySelector('#experiencia');
+    if (experienciaElement) {
+      experienciaElement.scrollIntoView({
+        behavior: 'smooth'
+      });
+    }
   });
 });

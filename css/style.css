@@ -32,6 +32,7 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px; /* Base font size para rem */
+  height: 100%;
 }
 
 body {
@@ -42,6 +43,7 @@ body {
   overflow-x: hidden;
   text-rendering: optimizeSpeed;
   line-height: 1.5;
+  min-height: 100%;
 }
 
 canvas {
@@ -61,16 +63,23 @@ canvas {
 }
 
 /* Hero section */
-.content {
+.hero-section {
   position: relative;
   width: 100%;
   height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 0 var(--spacing-md);
+  z-index: 1;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 h1 {
@@ -79,18 +88,26 @@ h1 {
   letter-spacing: -0.02em;
 }
 
-h2 {
+.subtitle {
   font-size: clamp(1.5rem, 4vw, 2rem);
   margin-bottom: var(--spacing-lg);
   font-weight: 400;
   opacity: 0.9;
 }
 
+/* Navigation container */
+.navigation-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
 /* Social links */
 .social-links {
   display: flex;
   gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
 }
 
 .social-links a {
@@ -155,6 +172,7 @@ h2 {
   transform: translateX(-50%);
   animation: bounce 2s infinite;
   cursor: pointer;
+  z-index: 10;
 }
 
 @keyframes bounce {
@@ -173,13 +191,22 @@ h2 {
   }
 }
 
-/* Experience section */
-.experience {
-  min-height: 100vh;
-  padding: var(--spacing-xl) var(--spacing-md);
+/* Main content */
+main {
   position: relative;
   z-index: 1;
+}
+
+/* Experience section */
+.experience {
+  position: relative;
+  padding: var(--spacing-xl) var(--spacing-md);
   background: var(--bg-color);
+  min-height: 100vh;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .experience h2 {
@@ -226,6 +253,7 @@ h2 {
 .projects {
   max-width: var(--container-width);
   margin: 0 auto;
+  margin-top: var(--spacing-xl);
 }
 
 .project-grid {
@@ -283,6 +311,10 @@ h2 {
   padding: var(--spacing-xl) var(--spacing-md);
   position: relative;
   z-index: 1;
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .about h2 {
@@ -385,7 +417,7 @@ h2 {
     font-size: 14px;
   }
   
-  .content {
+  .header {
     padding: 0 var(--spacing-sm);
   }
   
@@ -393,7 +425,7 @@ h2 {
     font-size: clamp(2rem, 8vw, 3rem);
   }
   
-  h2 {
+  .subtitle {
     font-size: clamp(1.2rem, 4vw, 1.6rem);
   }
   
@@ -463,7 +495,7 @@ h2 {
 
 /* Orientação paisagem em dispositivos móveis */
 @media (max-height: 500px) and (orientation: landscape) {
-  .content {
+  .hero-section {
     padding-top: var(--spacing-lg);
     padding-bottom: var(--spacing-lg);
     height: auto;
@@ -473,13 +505,14 @@ h2 {
   .scroll-indicator {
     position: relative;
     margin-top: var(--spacing-md);
+    bottom: auto;
   }
   
   h1 {
     font-size: 2rem;
   }
   
-  h2 {
+  .subtitle {
     font-size: 1.2rem;
     margin-bottom: var(--spacing-md);
   }
@@ -524,7 +557,7 @@ h2 {
   }
   
   .experience,
-  .content {
+  .hero-section {
     padding: 1rem;
     height: auto;
     min-height: auto;
