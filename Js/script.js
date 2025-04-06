@@ -4,13 +4,14 @@
     this.$el = $(el);
     this.options = options;
 
-    that = this;
+    this.that = this;
   };
 
   var isPlaying;
   var isInited = false;
   var canCanvas = false;
   var animId;
+  var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   (function () {
     var lastTime = 0;
@@ -49,7 +50,7 @@
       mouseSpeed: 0.09,
       fps: 15,
       speed: 1,
-      quantity: 512,
+      quantity: isMobile ? 256 : 512,
       ratio: 256,
       divclass: "starfield",
     },
@@ -72,39 +73,27 @@
       this.context.canvas.width = this.w;
       this.context.canvas.height = this.h;
 
-      for (var i = 0; i < this.n; i++) {
-        this.star[i][0] = oldStar[i][0] * ratX;
-        this.star[i][1] = oldStar[i][1] * ratY;
+      window.requestAnimationFrame(() => {
+        for (var i = 0; i < this.n; i++) {
+          this.star[i][0] = oldStar[i][0] * ratX;
+          this.star[i][1] = oldStar[i][1] * ratY;
 
-        this.star[i][3] =
-          this.x + (this.star[i][0] / this.star[i][2]) * this.star_ratio;
-        this.star[i][4] =
-          this.y + (this.star[i][1] / this.star[i][2]) * this.star_ratio;
-      }
+          this.star[i][3] =
+            this.x + (this.star[i][0] / this.star[i][2]) * this.star_ratio;
+          this.star[i][4] =
+            this.y + (this.star[i][1] / this.star[i][2]) * this.star_ratio;
+        }
 
-      that.context.fillStyle = that.settings.bgColor;
-      this.context.strokeStyle = this.settings.starColor;
+        this.context.fillStyle = this.settings.bgColor;
+        this.context.strokeStyle = this.settings.starColor;
+      });
     },
 
     init: function () {
       this.settings = $.extend({}, this.defaults, this.options);
 
-      var url = document.location.href;
-      this.n = parseInt(
-        url.indexOf("n=") != -1
-          ? url.substring(
-              url.indexOf("n=") + 2,
-              url.substring(url.indexOf("n=") + 2, url.length).indexOf("&") !=
-                -1
-                ? url.indexOf("n=") +
-                    2 +
-                    url
-                      .substring(url.indexOf("n=") + 2, url.length)
-                      .indexOf("&")
-                : url.length
-            )
-          : this.settings.quantity
-      );
+      const urlParams = new URLSearchParams(window.location.search);
+      this.n = parseInt(urlParams.get('n')) || this.settings.quantity;
 
       this.flag = true;
       this.test = true;
@@ -135,60 +124,56 @@
 
       this.fps = this.settings.fps;
 
-      this.desktop = !navigator.userAgent.match(
-        /(iPhone|iPod|iPad|Android|BlackBerry|BB10|IEMobile)/
-      );
+      this.desktop = !isMobile;
       this.orientationSupport = window.DeviceOrientationEvent !== undefined;
       this.portrait = null;
 
-      var canvasInit = function () {
-        that.w = that.$el.width();
-        that.h = that.$el.height();
+      var canvasInit = () => {
+        this.w = this.$el.width();
+        this.h = this.$el.height();
 
-        that.initW = that.w;
-        that.initH = that.h;
+        this.initW = this.w;
+        this.initH = this.h;
 
-        that.portrait = that.w < that.h;
+        this.portrait = this.w < this.h;
 
-        that.wrapper = $("<canvas />").addClass(that.settings.divclass);
+        this.wrapper = $("<canvas />").addClass(this.settings.divclass);
 
-        that.wrapper.appendTo(that.el);
+        this.wrapper.appendTo(this.el);
 
-        that.starz = $("canvas", that.el);
+        this.starz = $("canvas", this.el);
 
-        if (that.starz[0].getContext) {
-          that.context = that.starz[0].getContext("2d");
+        if (this.starz[0].getContext) {
+          this.context = this.starz[0].getContext("2d");
           canCanvas = true;
         }
 
-        that.context.canvas.width = that.w;
-        that.context.canvas.height = that.h;
+        this.context.canvas.width = this.w;
+        this.context.canvas.height = this.h;
       };
       canvasInit();
 
-      var starInit = function () {
+      var starInit = () => {
         if (canCanvas) {
-          that.x = Math.round(that.w / 2);
-          that.y = Math.round(that.h / 2);
-          that.z = (that.w + that.h) / 2;
-          that.star_color_ratio = 1 / that.z;
-          that.cursor_x = that.x;
-          that.cursor_y = that.y;
+          this.x = Math.round(this.w / 2);
+          this.y = Math.round(this.h / 2);
+          this.z = (this.w + this.h) / 2;
+          this.star_color_ratio = 1 / this.z;
+          this.cursor_x = this.x;
+          this.cursor_y = this.y;
 
-          for (var i = 0; i < that.n; i++) {
-            that.star[i] = new Array(5);
+          this.star = Array.from({ length: this.n }, () => {
+            return [
+              Math.random() * this.w * 2 - this.x * 2,
+              Math.random() * this.h * 2 - this.y * 2,
+              Math.round(Math.random() * this.z),
+              0,
+              0
+            ];
+          });
 
-            that.star[i][0] = Math.random() * that.w * 2 - that.x * 2;
-            that.star[i][1] = Math.random() * that.h * 2 - that.y * 2;
-            that.star[i][2] = Math.round(Math.random() * that.z);
-            that.star[i][3] = 0;
-            that.star[i][4] = 0;
-          }
-
-          that.context.fillStyle = that.settings.bgColor;
-          that.context.strokeStyle = that.settings.starColor;
-        } else {
-          return;
+          this.context.fillStyle = this.settings.bgColor;
+          this.context.strokeStyle = this.settings.starColor;
         }
       };
       starInit();
@@ -210,8 +195,7 @@
         if (this.star[i][0] > this.x << 1) {
           this.star[i][0] -= this.w << 1;
           this.test = false;
-        }
-        if (this.star[i][0] < -this.x << 1) {
+        } else if (this.star[i][0] < -this.x << 1) {
           this.star[i][0] += this.w << 1;
           this.test = false;
         }
@@ -220,8 +204,7 @@
         if (this.star[i][1] > this.y << 1) {
           this.star[i][1] -= this.h << 1;
           this.test = false;
-        }
-        if (this.star[i][1] < -this.y << 1) {
+        } else if (this.star[i][1] < -this.y << 1) {
           this.star[i][1] += this.h << 1;
           this.test = false;
         }
@@ -230,8 +213,7 @@
         if (this.star[i][2] > this.z) {
           this.star[i][2] -= this.z;
           this.test = false;
-        }
-        if (this.star[i][2] < 0) {
+        } else if (this.star[i][2] < 0) {
           this.star[i][2] += this.z;
           this.test = false;
         }
@@ -262,46 +244,61 @@
     loop: function () {
       this.anim();
 
-      animId = window.requestAnimationFrame(function () {
-        that.loop();
-      });
+      if (isMobile) {
+        setTimeout(() => {
+          animId = window.requestAnimationFrame(() => this.loop());
+        }, 1000 / 30);
+      } else {
+        animId = window.requestAnimationFrame(() => this.loop());
+      }
     },
 
     move: function () {
       var doc = document.documentElement;
+      
+      const throttle = (fn, delay) => {
+        let lastCall = 0;
+        return function(...args) {
+          const now = new Date().getTime();
+          if (now - lastCall < delay) {
+            return;
+          }
+          lastCall = now;
+          return fn(...args);
+        };
+      };
 
       if (this.orientationSupport && !this.desktop) {
-        window.addEventListener("deviceorientation", handleOrientation, false);
+        window.addEventListener("deviceorientation", throttle(handleOrientation, 50), false);
       } else {
-        window.addEventListener("mousemove", handleMousemove, false);
+        window.addEventListener("mousemove", throttle(handleMousemove, 50), false);
       }
 
-      function handleOrientation(event) {
+      const handleOrientation = (event) => {
         if (event.beta !== null && event.gamma !== null) {
           var x = event.gamma,
             y = event.beta;
 
-          if (!that.portrait) {
+          if (!this.portrait) {
             x = event.beta * -1;
             y = event.gamma;
           }
 
-          that.cursor_x = that.w / 2 + x * 5;
-          that.cursor_y = that.h / 2 + y * 5;
+          this.cursor_x = this.w / 2 + x * 5;
+          this.cursor_y = this.h / 2 + y * 5;
         }
-      }
+      };
 
-      function handleMousemove(event) {
-        that.cursor_x =
+      const handleMousemove = (event) => {
+        this.cursor_x =
           event.pageX || event.clientX + doc.scrollLeft - doc.clientLeft;
-        that.cursor_y =
+        this.cursor_y =
           event.pageY || event.clientY + doc.scrollTop - doc.clientTop;
-      }
+      };
     },
 
     stop: function () {
       window.cancelAnimationFrame(animId);
-
       isPlaying = false;
     },
 
@@ -316,19 +313,27 @@
         this.loop();
       }
 
+      const debounce = (fn, delay) => {
+        let timeoutId;
+        return function(...args) {
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+          timeoutId = setTimeout(() => {
+            fn.apply(this, args);
+          }, delay);
+        };
+      };
+
       window.addEventListener(
-        "resize",
-        function () {
-          that.resizer();
-        },
+        "resize", 
+        debounce(() => this.resizer(), 200), 
         false
       );
 
       window.addEventListener(
         "orientationchange",
-        function () {
-          that.resizer();
-        },
+        debounce(() => this.resizer(), 200),
         false
       );
 
@@ -351,4 +356,92 @@
   window.Starfield = Starfield;
 })(jQuery, window, document);
 
-$(".starfield").starfield();
+$(document).ready(function() {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+  const screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+  const isLowPowerDevice = isMobile && navigator.deviceMemory && navigator.deviceMemory < 4;
+  
+  let starOptions = {};
+  
+  // Configurações baseadas no tipo de dispositivo e tamanho da tela
+  if (isLowPowerDevice) {
+    // Dispositivos de baixa capacidade
+    starOptions = {
+      quantity: 100,
+      speed: 0.3,
+      fps: 20
+    };
+  } else if (isMobile || screenWidth < 480) {
+    // Smartphones
+    starOptions = {
+      quantity: 150,
+      speed: 0.5,
+      fps: 30
+    };
+  } else if (screenWidth < 768) {
+    // Tablets menores
+    starOptions = {
+      quantity: 250,
+      speed: 0.6,
+      fps: 30
+    };
+  } else if (screenWidth < 1200) {
+    // Tablets maiores e laptops
+    starOptions = {
+      quantity: 300,
+      speed: 0.8
+    };
+  } else if (screenWidth >= 1920) {
+    // Telas grandes
+    starOptions = {
+      quantity: 600,
+      speed: 1.2
+    };
+  }
+  
+  // Orientação paisagem em dispositivo móvel (ajuste para melhor desempenho)
+  if (isMobile && screenWidth > screenHeight) {
+    starOptions.quantity = Math.floor(starOptions.quantity * 0.7);
+  }
+  
+  // Inicializar o campo de estrelas
+  $(".starfield").starfield(starOptions);
+  
+  // Atualizar quando a orientação mudar
+  window.addEventListener('orientationchange', function() {
+    setTimeout(function() {
+      const newWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      const newHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+      
+      if (isMobile) {
+        // Reajustar quantidade em orientação paisagem
+        if (newWidth > newHeight) {
+          $(".starfield").starfield({
+            ...starOptions,
+            quantity: Math.floor(starOptions.quantity * 0.7)
+          });
+        } else {
+          $(".starfield").starfield(starOptions);
+        }
+      }
+    }, 300);
+  });
+  
+  // Adicionar suporte a navegação suave para links internos
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      
+      const targetId = this.getAttribute('href');
+      if (targetId === '#') return;
+      
+      const targetElement = document.querySelector(targetId);
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+});
