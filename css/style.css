@@ -375,8 +375,8 @@ main {
   max-width: 100%;
   margin: 0 auto;
   height: 350px;
-  overflow: hidden;
-  margin-bottom: var(--spacing-xl);
+  overflow: visible;
+  margin-bottom: var(--spacing-lg);
 }
 
 .certificates-carousel {
@@ -447,6 +447,7 @@ main {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  text-align: center;
 }
 
 .certificate-card::before {
@@ -486,12 +487,15 @@ main {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .certificate-details p {
   margin-bottom: 0.8rem;
   line-height: 1.4;
   font-size: 0.9rem;
+  text-align: center;
 }
 
 .certificate-date {
@@ -502,15 +506,19 @@ main {
   padding-top: 0.4rem;
   border-top: 1px dashed rgba(255, 255, 255, 0.1);
   margin-bottom: 0 !important;
+  text-align: center;
+  width: 100%;
 }
 
 .certificate-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-top: 0.8rem;
   padding-top: 0.8rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .cert-provider {
@@ -519,6 +527,7 @@ main {
   color: #2ec866;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .cert-provider::before {
@@ -550,35 +559,62 @@ main {
 
 .carousel-controls {
   position: absolute;
-  bottom: -55px;
+  bottom: auto;
+  top: 50%;
   left: 0;
   right: 0;
   display: flex;
-  justify-content: center;
-  gap: var(--spacing-lg);
+  justify-content: space-between;
+  padding: 0 20px;
+  transform: translateY(-50%);
   z-index: 10;
+  pointer-events: none;
+  width: 100%;
 }
 
 .carousel-control {
-  background: var(--btn-bg);
-  border: none;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease;
+  pointer-events: auto;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1;
+  user-select: none;
 }
 
 .carousel-control:hover {
-  background: var(--btn-hover-bg);
+  background: rgba(46, 200, 102, 0.5);
   transform: scale(1.1);
 }
 
 .carousel-control:active {
   transform: scale(0.95);
+}
+
+/* Removendo as antigas definições de SVG que não serão mais usadas */
+.carousel-control svg,
+.carousel-control svg path {
+  display: none;
+}
+
+#prev-certificate {
+  left: 10px;
+}
+
+#next-certificate {
+  right: 10px;
 }
 
 /* Ajustes responsivos para o carrossel */
@@ -624,6 +660,15 @@ main {
   .certificate-card h4 {
     font-size: 1.2rem;
   }
+  
+  .carousel-controls {
+    padding: 0 10px;
+  }
+  
+  .carousel-control {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -658,7 +703,17 @@ main {
   }
   
   .carousel-controls {
-    bottom: -40px;
+    padding: 0 5px;
+  }
+  
+  .carousel-control {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .certificate-item[data-position="1"],
+  .certificate-item[data-position="3"] {
+    opacity: 0.8;
   }
 }
 
