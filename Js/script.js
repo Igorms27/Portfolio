@@ -466,3 +466,128 @@ $(document).ready(function() {
     }
   });
 });
+
+// Carrossel de Certificados
+document.addEventListener('DOMContentLoaded', function() {
+  const nextButton = document.getElementById('next-certificate');
+  const prevButton = document.getElementById('prev-certificate');
+  const certificateItems = document.querySelectorAll('.certificate-item');
+  const totalItems = certificateItems.length;
+  let isAnimating = false;
+  
+  // Função para atualizar as posições dos certificados
+  function updatePositions() {
+    certificateItems.forEach(item => {
+      const position = parseInt(item.getAttribute('data-position'));
+      const newPosition = (position % totalItems) || totalItems;
+      item.setAttribute('data-position', newPosition);
+    });
+  }
+  
+  // Mover para o próximo certificado
+  function moveNext() {
+    if (isAnimating) return;
+    isAnimating = true;
+    
+    certificateItems.forEach(item => {
+      let currentPosition = parseInt(item.getAttribute('data-position'));
+      let newPosition = currentPosition - 1;
+      if (newPosition <= 0) {
+        newPosition = totalItems;
+      }
+      item.setAttribute('data-position', newPosition);
+    });
+    
+    // Adicionar classe de animação
+    const carousel = document.querySelector('.certificates-carousel');
+    carousel.classList.add('rotating');
+    
+    // Remover classe após a animação
+    setTimeout(() => {
+      carousel.classList.remove('rotating');
+      isAnimating = false;
+    }, 600);
+  }
+  
+  // Mover para o certificado anterior
+  function movePrev() {
+    if (isAnimating) return;
+    isAnimating = true;
+    
+    certificateItems.forEach(item => {
+      let currentPosition = parseInt(item.getAttribute('data-position'));
+      let newPosition = currentPosition + 1;
+      if (newPosition > totalItems) {
+        newPosition = 1;
+      }
+      item.setAttribute('data-position', newPosition);
+    });
+    
+    // Adicionar classe de animação
+    const carousel = document.querySelector('.certificates-carousel');
+    carousel.classList.add('rotating');
+    
+    // Remover classe após a animação
+    setTimeout(() => {
+      carousel.classList.remove('rotating');
+      isAnimating = false;
+    }, 600);
+  }
+  
+  // Adicionar evento aos botões
+  if (nextButton && prevButton) {
+    nextButton.addEventListener('click', moveNext);
+    prevButton.addEventListener('click', movePrev);
+  }
+  
+  // Rotação automática a cada 3 segundos
+  let autoRotate = setInterval(moveNext, 3000);
+  
+  // Parar rotação automática quando o mouse estiver sobre o carrossel
+  const carouselContainer = document.querySelector('.certificates-carousel-container');
+  if (carouselContainer) {
+    carouselContainer.addEventListener('mouseenter', () => {
+      clearInterval(autoRotate);
+    });
+    
+    carouselContainer.addEventListener('mouseleave', () => {
+      clearInterval(autoRotate); // Limpar qualquer intervalo existente
+      autoRotate = setInterval(moveNext, 3000);
+    });
+  }
+  
+  // Adicionar suporte para gestos de swipe em dispositivos móveis
+  let touchStartX = 0;
+  let touchEndX = 0;
+  
+  if (carouselContainer) {
+    carouselContainer.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+      // Parar rotação automática durante o toque
+      clearInterval(autoRotate);
+    }, { passive: true });
+    
+    carouselContainer.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+      
+      // Reiniciar rotação automática após o toque
+      clearInterval(autoRotate);
+      autoRotate = setInterval(moveNext, 3000);
+    }, { passive: true });
+    
+    function handleSwipe() {
+      const swipeThreshold = 50;
+      if (touchEndX < touchStartX - swipeThreshold) {
+        // Swipe para esquerda - próximo
+        moveNext();
+      } else if (touchEndX > touchStartX + swipeThreshold) {
+        // Swipe para direita - anterior
+        movePrev();
+      }
+    }
+  }
+  
+  // Inicializar as posições
+  updatePositions();
+});
